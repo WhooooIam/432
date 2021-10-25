@@ -24,6 +24,21 @@ var client = new Twitter({
 var check = '';
 
 async function getPos(text) {
+<<<<<<< HEAD
+=======
+
+    await natural.BayesClassifier.load('classifier.json', null, (err, classifier) => {
+        if (err) {
+            console.log(err);
+            return
+        }
+        check = (classifier.classify(text));
+        return check
+    })
+}
+
+function sentimental(tweets) {
+>>>>>>> df1bff5457302f1a7afbb2e19781e9b3cb943af1
 
     await natural.BayesClassifier.load('classifier.json', null, async (err, classifier) => {
         if (err) {
@@ -35,6 +50,7 @@ async function getPos(text) {
     })
 }
 
+<<<<<<< HEAD
 // function sentimental(tweets) {
 
 //     var posNeg = []
@@ -43,6 +59,20 @@ async function getPos(text) {
 
 //         check = getPos(data.text);
 //         console.log(check);
+=======
+    tweets.forEach( function(data) {
+
+        check = getPos(data.text);
+        console.log(check);
+
+        let entry = {
+            "author": data.user.name,
+            "tweet": data.text,
+            "analysis": check
+        }
+
+        posNeg.push(entry)
+>>>>>>> df1bff5457302f1a7afbb2e19781e9b3cb943af1
 
 //         let entry = {
 //             "author": data.user.name,
@@ -50,6 +80,7 @@ async function getPos(text) {
 //             "analysis": check
 //         }
 
+<<<<<<< HEAD
 //         
 
 //     })
@@ -57,6 +88,11 @@ async function getPos(text) {
 //     console.log(posNeg)
 //     return posNeg;
 // }
+=======
+    console.log(posNeg)
+    return posNeg;
+}
+>>>>>>> df1bff5457302f1a7afbb2e19781e9b3cb943af1
 // Create a request
 router.get('/tweets/:tag', (req, res) => {
 
