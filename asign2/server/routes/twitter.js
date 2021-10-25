@@ -23,35 +23,38 @@ var client = new Twitter({
 
 var check = '';
 
+async function getPos(text) {
+
+    await natural.BayesClassifier.load('classifier.json', null, (err, classifier) => {
+        if (err) {
+            console.log(err);
+            return
+        }
+        check = (classifier.classify(text));
+        return check
+    })
+}
+
 function sentimental(tweets) {
 
     var posNeg = []
 
-    tweets.forEach(function(data) {
+    tweets.forEach( function(data) {
 
-        natural.BayesClassifier.load('classifier.json', null, (err, classifier) => {
-            if (err) {
-                console.log(err)
-                return
-            }
-            check = classifier.classify(data.text);
-            // Here it will show Positive/Negative
-        })
-
-        // Here it will show ''
+        check = getPos(data.text);
         console.log(check);
 
         let entry = {
             "author": data.user.name,
             "tweet": data.text,
-            "analysis": ''
+            "analysis": check
         }
-        //console.log(entry);
+
         posNeg.push(entry)
 
     })
 
-    //console.log(posNeg)
+    console.log(posNeg)
     return posNeg;
 }
 // Create a request
