@@ -1,0 +1,47 @@
+.DataTable {
+    border: 1px solid black;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+tr, td {
+    border: 1px solid black;
+}
+
+.Headers {
+    border: 1px solid black;
+    text-align: center;
+    font-weight: bold;
+    font-size: medium;
+}
+
+.SearchBox {
+    text-align: center;
+    margin-left: auto;
+    margin-top: 0px;
+    margin-right: auto;
+}
+
+h1 {
+    text-align: center;
+}
+
+h3 {
+    color: red;
+    text-align: center;
+}
+
+p {
+    text-align: center;
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
+
+.TextBox {
+    text-align: center;
+    margin-left: 2px;
+    margin-right: 2px;
+}
