@@ -23,37 +23,40 @@ var client = new Twitter({
 
 var check = '';
 
-function sentimental(tweets) {
+async function getPos(text) {
 
-    var posNeg = []
-
-    tweets.forEach(function(data) {
-
-        natural.BayesClassifier.load('classifier.json', null, (err, classifier) => {
-            if (err) {
-                console.log(err)
-                return
-            }
-            check = classifier.classify(data.text);
-            // Here it will show Positive/Negative
-        })
-
-        // Here it will show ''
-        console.log(check);
-
-        let entry = {
-            "author": data.user.name,
-            "tweet": data.text,
-            "analysis": ''
+    await natural.BayesClassifier.load('classifier.json', null, async (err, classifier) => {
+        if (err) {
+            console.log(err);
+            return
         }
-        //console.log(entry);
-        posNeg.push(entry)
-
+        check = (classifier.classify(text));
+        return check
     })
-
-    //console.log(posNeg)
-    return posNeg;
 }
+
+// function sentimental(tweets) {
+
+//     var posNeg = []
+
+//     tweets.forEach( function(data) {
+
+//         check = getPos(data.text);
+//         console.log(check);
+
+//         let entry = {
+//             "author": data.user.name,
+//             "tweet": data.text,
+//             "analysis": check
+//         }
+
+//         
+
+//     })
+
+//     console.log(posNeg)
+//     return posNeg;
+// }
 // Create a request
 router.get('/tweets/:tag', (req, res) => {
 
@@ -68,16 +71,26 @@ router.get('/tweets/:tag', (req, res) => {
 
             // Extract the Tweets
             var status = tweets.statuses;
-            console.log(status.length);
-            // status.map((data) => {
-            //     text.push(data.text);
-            //     user.push(data.user.name);
-            // })
-            
-            //console.log(text);
 
-            var analysis = sentimental(status);
-            //console.log(analysis);
+            var posNeg = []
+
+            natural.BayesClassifier.load('classifier.json', null, async (err, classifier) => {
+                if (err) {
+                    console.log(err);
+                    return
+                }
+                status.forEach(async function(data) {
+                    let entry = {
+                                    "author": data.user.name,
+                                    "tweet": data.text,
+                                    "analysis": (classifier.classify(data.text))
+                    }
+                        
+                    posNeg.push(entry)
+                })
+                console.log(posNeg)
+                res.send(posNeg);
+            })
 
 
             //res.send({ author: user, tweet: text, result: analysis});
