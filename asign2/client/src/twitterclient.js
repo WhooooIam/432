@@ -11,14 +11,14 @@ export function getTweets(hashtag) {
     .then((data) => { 
         console.log(data);
         return data})
-//     .then((rsp) => 
-//     rsp.map((twt) => ({
-//         id: twt.user.name,
-//         text: twt.text,
-//         hashtags: twt.entities.hashtags
-//     })),
-// )
-.catch((e) => {console.log(e)});
+    .then((rsp) => 
+    rsp.map((twt) => ({
+        id: twt.author,
+        text: twt.tweet,
+        analysis: twt.analysis
+    })),
+    )
+    .catch((e) => {console.log(e)});
 }
 
 /* 
@@ -36,16 +36,16 @@ function createTable(tweets) {
                         <td> Tweet </td>
                         <td> Tweet Analysis </td>
                     </tr>
-                    {/* { tweets.map((data) => {
+                    { tweets.map((data) => {
                         return(
                             <tr>
                                 <td>{data.id}</td>
                                 <td>{data.text}</td>
-                                <td>Pos/Neg</td>
+                                <td>{data.analysis}</td>
                             </tr>
                         )
                     })
-                    } */}
+                    }
                 </table>
             </div>
         )     
@@ -57,7 +57,7 @@ export default function TwitterRoute() {
     // Initialise Variables
     const [hashtag, setHashtag] = useState("");
     const [htmlhashtag, setHtmlhashtag] = useState("");
-    const [tweetdata, setTweetdata] = useState([{id: "", text: "", hastags: []}])
+    const [tweetdata, setTweetdata] = useState([{id: "", text: "", analysis: ""}])
     const [error, setError] = useState("");
 
     return(
@@ -92,9 +92,9 @@ export default function TwitterRoute() {
                     setError("");
                     getTweets(htmlhashtag)
                     .then((rsp) => {
-                        //setTweetdata(rsp);
+                        setTweetdata(rsp);
                         console.log(rsp);
-                        //console.log(tweetdata);
+                        console.log(tweetdata);
                         if (rsp.length === 0) {
                             setError("No found tweets with tag/s searched. Try reducing or another tag!");
                         }
