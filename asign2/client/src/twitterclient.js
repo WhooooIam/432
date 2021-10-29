@@ -63,11 +63,11 @@ function createGraph(tweets) {
         var neu = 0;
         var total = tweets.length;
         for (var i = 0; i < tweets.length; i++) {
-            if (tweets[i].analysis == "positive") {
+            if (tweets[i].analysis === "positive") {
                 pos++;
-            } else if (tweets[i].analysis == "negative") {
+            } else if (tweets[i].analysis === "negative") {
                 neg++;
-            } else if (tweets[i].analysis == "neutral") {
+            } else if (tweets[i].analysis === "neutral") {
                 neu++;
             }
         }
