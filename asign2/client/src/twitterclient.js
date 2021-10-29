@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Bar } from 'react-chartjs-2';
 import './twitterclient.css';
 
 /*
@@ -10,7 +11,7 @@ export function getTweets(hashtag) {
     .then((response) => response.json())
     .then((data) => { 
         console.log(data);
-        return data})
+        return data.results})
     .then((rsp) => 
     rsp.map((twt) => ({
         id: twt.author,
@@ -27,7 +28,6 @@ export function getTweets(hashtag) {
 function createTable(tweets) {
     
     if(tweets.length !== 1 && tweets.length !== 0)  {
-        console.log(tweets.length)
         return (
             <div>
                 <table className = "DataTable">
@@ -49,6 +49,79 @@ function createTable(tweets) {
                 </table>
             </div>
         )     
+    }
+}
+
+/*
+    This Function creates the sentimental analysis graph
+*/
+function createGraph(tweets) {
+
+    if (tweets.length !== 1 && tweets.length !== 0) {
+        var pos = 0;
+        var neg = 0;
+        var neu = 0;
+        var total = tweets.length;
+        for (var i = 0; i < tweets.length; i++) {
+            if (tweets[i].analysis == "positive") {
+                pos++;
+            } else if (tweets[i].analysis == "negative") {
+                neg++;
+            } else if (tweets[i].analysis == "neutral") {
+                neu++;
+            }
+        }
+        pos = (pos / total * 100).toFixed(3);
+        neg = (neg / total * 100).toFixed(3);
+        neu = (neu / total * 100).toFixed(3);
+        var data = {
+            labels: ['positive', 'negative', 'neutral'],
+            datasets: [{
+                label: `% of Tweets`,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                ],
+                borderWidth: 1,
+                data: [pos, neg, neu],
+            }],
+        }
+
+        var options = {
+            plugins: {
+                title: {
+                    display: true,
+                    text: `Analysis Distribution of ${total} Tweets`,
+                    font: {
+                        weight: 'bold',
+                        font: 100
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    max: 100,
+                    ticks: {
+                        callback: function (value) {
+                            return value + "%"
+                        }
+                    }
+
+                }
+            }
+        }
+
+        return (
+            <div>
+                <Bar data={data} width={100} height={50} options={options} />
+            </div>
+        )
     }
 }
 
@@ -106,6 +179,7 @@ export default function TwitterRoute() {
             }}> Submit </button>
             </div>
             {createTable(tweetdata)}
+            {createGraph(tweetdata)}
         </div>
     )
 }
