@@ -55,19 +55,17 @@ router.get('/tweets/:tag', (req, res) => {
     // Check S3
     const params = { Bucket: bucketName, Key: s3Key};
 
-    return new AWS.S3({apiVersion: '2006-03-01'}).getObject(params, (err, result) => {
-        if(result) {
-            // Serve from S3
-            console.log('in the S3');
-            const resultJSON = JSON.parse(result.Body);
-            console.log(resultJSON);
-            return res.send(resultJSON)
+    return redisClient.get(redisKey, (err, result) => {
+        if (result) {
+            
+            console.log(" Redis Cache ");
+            // Serve from Cache
+            const resultJSON = JSON.parse(result);
+            return res.send(resultJSON);
         }
         else {
             // extract the hashtag
             var params = {q: req.params.tag, lang: 'en', result_type: 'recent', exclude: 'retweets'};
-            // var text = [];
-            // var user = [];
 
             client.get('search/tweets', params, function(error, tweets, response) {
                 if(!error) {
