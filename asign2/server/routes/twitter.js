@@ -20,14 +20,15 @@ const accessTokenSecret = process.env.accesstokensecret;
 const AWS = require('aws-sdk');
 //AWS.config.update({region:'ap-southeast-2'});
 
-const redisClient = redis.createClient();
+const redisClient = redis.createClient({
+    host: 'n10229213-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com',
+    port: 3679
+});
 redisClient.on('error', (err) => {
     console.log("Error " + err);
 });
 
 var elasticache = new ElastiCacheClient({
-    //apiVersion: '2015-02-02',
-    //endpoint: 'n10229213-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com:6379',
     region: 'ap-southeast-2'
 });
 
@@ -114,28 +115,28 @@ router.get('/tweets/:tag', (req, res) => {
                         // Store in the Redis (To expire after 15 minutes)
                         redisClient.setex(redisKey, 900, JSON.stringify({ source: 'Redis Cache', results: responseJSON }));
 
-                        var params_redis = {
-                            ResourceName: 'arn:aws:elasticache:ap-southeast-2:901444280953:cluster:n10229213-redis-001', 
-                            Tags: [ /* required */
-                            {
-                                Key: redisKey,
-                                //Value: JSON.stringify({ source: 'Redis Cache', results: responseJSON })
-                            }],
-                            Data: JSON.stringify({ source: 'Redis Cache', results: responseJSON })
-                        };
+                        // var params_redis = {
+                        //     ResourceName: 'arn:aws:elasticache:ap-southeast-2:901444280953:cluster:n10229213-redis', 
+                        //     Tags: [ /* required */
+                        //     {
+                        //         Key: redisKey,
+                        //         //Value: JSON.stringify({ source: 'Redis Cache', results: responseJSON })
+                        //     }],
+                        //     Data: JSON.stringify({ source: 'Redis Cache', results: responseJSON })
+                        // };
                         // elasticache.addTagsToResource(params_redis, function(err, data) {
                         //     if (err) console.log(err, err.stack); // an error occurred
                         //     else     console.log('Elasticache done');           // successful response
                         // });
-                        const command = new AddTagsToResourceCommand(params_redis);
-                        elasticache.send(command)
-                        .then((data) => {
-                            //Process the Data
-                            console.log(data);
-                        })
-                        .catch((error) => {
-                            console.log(error)
-                        });
+                        // const command = new AddTagsToResourceCommand(params_redis);
+                        // elasticache.send(command)
+                        // .then((data) => {
+                        //     //Process the Data
+                        //     console.log(data);
+                        // })
+                        // .catch((error) => {
+                        //     console.log(error)
+                        // });
 
                         return res.send({ source: 'Twiiter API', results: responseJSON});
                     })
