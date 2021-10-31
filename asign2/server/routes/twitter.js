@@ -15,18 +15,15 @@ const apiSecretKey = process.env.apikeysecret;
 const accessToken = process.env.accesstoken;
 const accessTokenSecret = process.env.accesstokensecret;
 
-// This section will change for Cloud Services
-// Local Redis is default port 6379
 const redisClient = redis.createClient();
 redisClient.on('error', (err) => {
     console.log("Error " + err);
 });
 
-// Used for header info
-//router.use(responseTime());
 const AWS = require('aws-sdk');
 
 const bucketName = 'n10229213-twitter-store';
+
 // Create a promise on S3 service object
 const bucketPromise = new AWS.S3({apiVersion: '2006-03-01'}).createBucket({Bucket: bucketName}).promise();
 
@@ -52,27 +49,25 @@ router.get('/tweets/:tag', (req, res) => {
     const s3Key = `twitter-${key}`;
     const redisKey = `twitter:${key}`
 
-    // Check S3
-    const params = { Bucket: bucketName, Key: s3Key};
-
     return redisClient.get(redisKey, (err, result) => {
+        // Check to see if data is already in Redis storage
         if (result) {
             
-            console.log(" Redis Cache ");
-            // Serve from Cache
             const resultJSON = JSON.parse(result);
             return res.send(resultJSON);
         }
+        // Serve from the API
         else {
-            // extract the hashtag
-            var params = {q: req.params.tag, lang: 'en', result_type: 'recent', exclude: 'retweets'};
 
+            // extract the hashtag
+            var params = {q: req.params.tag, lang: 'en', result_type: 'recent', exclude: 'retweets', count: 100};
+
+            // Get information from Endpoint
             client.get('search/tweets', params, function(error, tweets, response) {
                 if(!error) {
-                    //console.log(params.q);
-                    console.log('in the API');
+
                     // Extract the Tweets
-                    var status = tweets.statuses;
+                    var status = tweets.statuses; 
 
                     var posNeg = []
 
@@ -81,6 +76,7 @@ router.get('/tweets/:tag', (req, res) => {
                             console.log(err);
                             return
                         }
+
                         status.forEach(async function(data) {
                             let entry = {
                                             "author": data.user.name,
@@ -90,33 +86,28 @@ router.get('/tweets/:tag', (req, res) => {
                                 
                             posNeg.push(entry)
                         })
+                        
                         const responseJSON = posNeg
-                        console.log(responseJSON);
                         const body = JSON.stringify({ source: 'S3 Bucket', results: responseJSON});
                         const objectParams = {Bucket: bucketName, Key: s3Key, Body: body};
                         const uploadPromise = new AWS.S3({apiVersion: '2006-03-01'}).putObject(objectParams).promise();
+
                         uploadPromise.then(function(data) {
                             console.log("Successfully uploaded data to " + bucketName + "/" + s3Key);
                         });
 
-                        // Store in the Redis
-                        // Store in the Cache 
-                        redisClient.setex(redisKey, 3600, JSON.stringify({ source: 'Redis Cache', results: responseJSON }));
+                        // Store in the Redis (To expire after 15 minutes)
+                        redisClient.setex(redisKey, 900, JSON.stringify({ source: 'Redis Cache', results: responseJSON }));
 
-                        //console.log(posNeg)
-                        //res.send({source: 'twitter', ...posNeg});
                         return res.send({ source: 'Twiiter API', results: responseJSON});
                     })
-
                 }
                 else {
                     res.status(500).json({ error: error})
                 }
-    });
+            });
         }
     });
-
-
 });
 
 module.exports = router;

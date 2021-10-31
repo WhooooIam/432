@@ -7,8 +7,28 @@
     border-collapse: collapse;
 }
 
+.Chart {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+
+}
+
+.Example {
+    color: gray;
+}
+
 tr, td {
     border: 1px solid black;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #dbdbdb;
 }
 
 .Headers {
@@ -16,6 +36,8 @@ tr, td {
     text-align: center;
     font-weight: bold;
     font-size: medium;
+    background-color: #363636;
+    color: white;
 }
 
 .SearchBox {
@@ -23,6 +45,7 @@ tr, td {
     margin-left: auto;
     margin-top: 0px;
     margin-right: auto;
+    margin-bottom: 10px;
 }
 
 h1 {
@@ -36,7 +59,7 @@ h3 {
 
 p {
     text-align: center;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
     margin-top: 4px;
 }
 
@@ -44,4 +67,5 @@ p {
     text-align: center;
     margin-left: 2px;
     margin-right: 2px;
+    margin-top: 5px;
 }

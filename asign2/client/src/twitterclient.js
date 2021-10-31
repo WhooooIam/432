@@ -27,15 +27,21 @@ export function getTweets(hashtag) {
 */
 function createTable(tweets) {
     
+    // Check to see if there is data and the table should be displayed
     if(tweets.length !== 1 && tweets.length !== 0)  {
+        console.log(tweets)
+
         return (
-            <div>
+            <div className = "ag-theme-balham-dark">
                 <table className = "DataTable">
+                    <thead>
                     <tr className = "Headers">
                         <td> Tweet By</td>
                         <td> Tweet </td>
                         <td> Tweet Analysis </td>
                     </tr>
+                    </thead>
+                    <tbody>
                     { tweets.map((data) => {
                         return(
                             <tr>
@@ -46,6 +52,7 @@ function createTable(tweets) {
                         )
                     })
                     }
+                    </tbody>
                 </table>
             </div>
         )     
@@ -57,6 +64,7 @@ function createTable(tweets) {
 */
 function createGraph(tweets) {
 
+    // Check to see if there is data and the graph should be displayed
     if (tweets.length !== 1 && tweets.length !== 0) {
         var pos = 0;
         var neg = 0;
@@ -71,21 +79,22 @@ function createGraph(tweets) {
                 neu++;
             }
         }
+
         pos = (pos / total * 100).toFixed(3);
         neg = (neg / total * 100).toFixed(3);
         neu = (neu / total * 100).toFixed(3);
         var data = {
             labels: ['positive', 'negative', 'neutral'],
             datasets: [{
-                label: `% of Tweets`,
+                label: 'Toggle Data',
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
                     'rgba(255, 206, 86, 0.2)',
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)',
                     'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
                     'rgba(255, 206, 86, 1)',
                 ],
                 borderWidth: 1,
@@ -100,7 +109,8 @@ function createGraph(tweets) {
                     text: `Analysis Distribution of ${total} Tweets`,
                     font: {
                         weight: 'bold',
-                        font: 100
+                        font: 100,
+                        size: 20
                     }
                 }
             },
@@ -112,14 +122,18 @@ function createGraph(tweets) {
                             return value + "%"
                         }
                     }
-
                 }
             }
         }
 
         return (
             <div>
-                <Bar data={data} width={100} height={50} options={options} />
+                <Bar 
+                    className = "Chart"
+                    data={data} 
+                    width={100} 
+                    height={50} 
+                    options={options} />
             </div>
         )
     }
@@ -130,7 +144,7 @@ export default function TwitterRoute() {
     // Initialise Variables
     const [hashtag, setHashtag] = useState("");
     const [htmlhashtag, setHtmlhashtag] = useState("");
-    const [tweetdata, setTweetdata] = useState([{id: "", text: "", analysis: ""}])
+    const [tweetdata, setTweetdata] = useState([])
     const [error, setError] = useState("");
 
     return(
@@ -140,7 +154,7 @@ export default function TwitterRoute() {
             <p> Search for tweets by hashtags. For mutliple
                 tags, use a space between tags
             </p>
-            <p> Example: <i>#dog #cat #cute</i></p>
+            <p> Example: <i className = "Example">#dog #cat #cute</i></p>
             <div className = "SearchBox">
             <label> Search: 
                 <input 
@@ -153,6 +167,12 @@ export default function TwitterRoute() {
                         const { value } = e.target;
                         setHashtag(value);
                         setHtmlhashtag(encodeURIComponent(value))
+                        if (hashtag.charAt(0) !== "#") {
+                            setError("Please use a Hashtag");
+                        }
+                        else {
+                            setError("");
+                        }
                     }}
                 />
             </label>
@@ -178,8 +198,10 @@ export default function TwitterRoute() {
                 }
             }}> Submit </button>
             </div>
+            
             {createTable(tweetdata)}
             {createGraph(tweetdata)}
+
         </div>
     )
 }
