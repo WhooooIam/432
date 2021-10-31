@@ -10,17 +10,26 @@ router.use(logger('tiny'));
 require('dotenv/config');
 const natural = require('natural');
 
+const { ElastiCacheClient, AddTagsToResourceCommand } = require("@aws-sdk/client-elasticache");
+
 const apiKey = process.env.apikey;
 const apiSecretKey = process.env.apikeysecret;
 const accessToken = process.env.accesstoken;
 const accessTokenSecret = process.env.accesstokensecret;
+
+const AWS = require('aws-sdk');
+//AWS.config.update({region:'ap-southeast-2'});
 
 const redisClient = redis.createClient();
 redisClient.on('error', (err) => {
     console.log("Error " + err);
 });
 
-const AWS = require('aws-sdk');
+var elasticache = new ElastiCacheClient({
+    //apiVersion: '2015-02-02',
+    //endpoint: 'n10229213-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com:6379',
+    region: 'ap-southeast-2'
+});
 
 const bucketName = 'n10229213-twitter-store';
 
@@ -45,10 +54,14 @@ var client = new Twitter({
 router.get('/tweets/:tag', (req, res) => {
 
     // Check if it is in storage
-    const key = (req.params.tag).trim();
-    const s3Key = `twitter-${key}`;
-    const redisKey = `twitter:${key}`
+    var key = (req.params.tag).trim();
 
+    key = key.replace('#', '');
+
+    const s3Key = `twitter-${key}`;
+    const redisKey = `${key}`
+
+    
     return redisClient.get(redisKey, (err, result) => {
         // Check to see if data is already in Redis storage
         if (result) {
@@ -78,7 +91,7 @@ router.get('/tweets/:tag', (req, res) => {
                         }
 
                         status.forEach(async function(data) {
-                            // remove links
+                            
                             var text =(data.text).replace(/(?:https?|ftp):\/\/[\n\S]+/g, ''); //remove https
                             let entry = {
                                             "author": data.user.name,
@@ -100,6 +113,29 @@ router.get('/tweets/:tag', (req, res) => {
 
                         // Store in the Redis (To expire after 15 minutes)
                         redisClient.setex(redisKey, 900, JSON.stringify({ source: 'Redis Cache', results: responseJSON }));
+
+                        var params_redis = {
+                            ResourceName: 'arn:aws:elasticache:ap-southeast-2:901444280953:cluster:n10229213-redis-001', 
+                            Tags: [ /* required */
+                            {
+                                Key: redisKey,
+                                //Value: JSON.stringify({ source: 'Redis Cache', results: responseJSON })
+                            }],
+                            Data: JSON.stringify({ source: 'Redis Cache', results: responseJSON })
+                        };
+                        // elasticache.addTagsToResource(params_redis, function(err, data) {
+                        //     if (err) console.log(err, err.stack); // an error occurred
+                        //     else     console.log('Elasticache done');           // successful response
+                        // });
+                        const command = new AddTagsToResourceCommand(params_redis);
+                        elasticache.send(command)
+                        .then((data) => {
+                            //Process the Data
+                            console.log(data);
+                        })
+                        .catch((error) => {
+                            console.log(error)
+                        });
 
                         return res.send({ source: 'Twiiter API', results: responseJSON});
                     })
