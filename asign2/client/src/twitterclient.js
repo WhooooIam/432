@@ -16,7 +16,7 @@ export function getTweets(hashtag) {
     rsp.map((twt) => ({
         id: twt.author,
         text: twt.tweet,
-        analysis: twt.analysis
+        analysis: twt.analysis,
     })),
     )
     .catch((e) => {console.log(e)});
@@ -198,7 +198,7 @@ export default function TwitterRoute() {
                 }
             }}> Submit </button>
             </div>
-            
+
             {createTable(tweetdata)}
             {createGraph(tweetdata)}
 

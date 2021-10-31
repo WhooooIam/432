@@ -60,7 +60,7 @@ router.get('/tweets/:tag', (req, res) => {
         else {
 
             // extract the hashtag
-            var params = {q: req.params.tag, lang: 'en', result_type: 'recent', exclude: 'retweets', count: 100};
+            var params = {q: req.params.tag, lang: 'en', result_type: 'recent', exclude: 'retweets', count: 100, include_entities: true};
 
             // Get information from Endpoint
             client.get('search/tweets', params, function(error, tweets, response) {
@@ -78,10 +78,12 @@ router.get('/tweets/:tag', (req, res) => {
                         }
 
                         status.forEach(async function(data) {
+                            // remove links
+                            var text =(data.text).replace(/(?:https?|ftp):\/\/[\n\S]+/g, ''); //remove https
                             let entry = {
                                             "author": data.user.name,
-                                            "tweet": data.text,
-                                            "analysis": (classifier.classify(data.text))
+                                            "tweet": text,
+                                            "analysis": (classifier.classify(text)),
                             }
                                 
                             posNeg.push(entry)
