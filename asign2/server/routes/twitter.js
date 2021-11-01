@@ -25,6 +25,7 @@ const redisClient = redis.createClient({
     port: 3679
 });
 redisClient.on('error', (err) => {
+    console.log('in redis error');
     console.log("Error " + err);
 });
 

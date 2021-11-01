@@ -6,6 +6,8 @@ COPY /client /client
 WORKDIR /client
 
 RUN npm install
+RUN npm install react-chartjs-2
+RUN npm install chart.js
 RUN npm run build
 
 WORKDIR ../server
@@ -15,6 +17,7 @@ RUN npm install morgan
 RUN npm install natural
 RUN npm install twitter
 RUN npm install redis
+RUN npm install aws-sdk
 
 EXPOSE 3000
 
