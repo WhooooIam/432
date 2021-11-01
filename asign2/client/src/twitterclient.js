@@ -182,6 +182,7 @@ export default function TwitterRoute() {
                     setError("Please enter a tag");
                 }
                 else {
+                    console.log('Click');
                     setError("");
                     getTweets(htmlhashtag)
                     .then((rsp) => {

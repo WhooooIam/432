@@ -10,7 +10,7 @@ router.use(logger('tiny'));
 require('dotenv/config');
 const natural = require('natural');
 
-const { ElastiCacheClient, AddTagsToResourceCommand } = require("@aws-sdk/client-elasticache");
+//const { ElastiCacheClient, AddTagsToResourceCommand } = require("@aws-sdk/client-elasticache");
 
 const apiKey = process.env.apikey;
 const apiSecretKey = process.env.apikeysecret;
@@ -21,17 +21,17 @@ const AWS = require('aws-sdk');
 //AWS.config.update({region:'ap-southeast-2'});
 
 const redisClient = redis.createClient({
-    host: 'n10229213-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com',
-    port: 3679
+    host: "n10229213-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com",
+    port: 6379
 });
 redisClient.on('error', (err) => {
     console.log('in redis error');
     console.log("Error " + err);
 });
 
-var elasticache = new ElastiCacheClient({
-    region: 'ap-southeast-2'
-});
+// var elasticache = new ElastiCacheClient({
+//     region: 'ap-southeast-2'
+// });
 
 const bucketName = 'n10229213-twitter-store';
 
@@ -68,6 +68,7 @@ router.get('/tweets/:tag', (req, res) => {
         // Check to see if data is already in Redis storage
         if (result) {
             
+            console.log('serving from redis')
             const resultJSON = JSON.parse(result);
             return res.send(resultJSON);
         }
